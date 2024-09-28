@@ -84,3 +84,5 @@ npm-debug.log
 .yarn-integrity
 .yarnrc.yml
 .pnp.js
+
+.env
