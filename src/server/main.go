@@ -1,28 +1,18 @@
 package main
 
 import (
-	"os"
+	"gltsm/services"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 var CHUNK_WAIT_TIME time.Duration = 200 * time.Millisecond
 
-func envVariable(key string) string {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		panic(err)
-	}
-
-	return os.Getenv(key)
-}
-
 func main() {
-	ensureDbCreated()
+	services.EnsureDbCreated()
+
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true, // Allow all origins
