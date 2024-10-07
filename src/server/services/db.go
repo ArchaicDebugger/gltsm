@@ -32,7 +32,9 @@ func GetConnectionString() string {
 
 func GetGormConnection() *gorm.DB {
 	conn_str := GetConnectionString()
-	db, err := gorm.Open(postgres.Open(conn_str), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(conn_str), &gorm.Config{
+		//Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic(err)
 	}

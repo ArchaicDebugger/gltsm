@@ -129,7 +129,7 @@ func getAllScrobbles(user string) models.ScrobbleResponse {
 	store(&album_map, chunk_size, dbs.AddAlbumIfNotExists, "albums")
 	store(&track_map, chunk_size, dbs.AddTrackIfNotExists, "tracks")
 
-	history_chunks := chunk(&first_call.Recenttracks.Track, chunk_size)
+	history_chunks := models.Chunk(first_call.Recenttracks.Track, chunk_size)
 	total_items_added := 0
 
 	for _, chunk := range history_chunks {
@@ -169,35 +169,9 @@ func appendOperationsToTotal(ch *DbResultChannel, total_counts *int) {
 	}
 }
 
-func mapToArray[T any](m *map[string]T) []T {
-	var result []T
-
-	for _, value := range *m {
-		result = append(result, value)
-	}
-
-	return result
-}
-
-func chunk[T any](m *[]T, chunk_size int) [][]T {
-	l := len(*m)
-
-	var result [][]T
-
-	for i := 0; i < l; i += chunk_size {
-		var slice []T
-		for j := i; j < i+chunk_size && j < l; j++ {
-			slice = append(slice, (*m)[j])
-		}
-		result = append(result, slice)
-	}
-
-	return result
-}
-
 func store[T any](m *map[string]T, chunk_size int, action func(*T) (services.DbOperationResponse, error), model_name string) {
-	full_arr := mapToArray(m)
-	item_chunks := chunk(&full_arr, chunk_size)
+	full_arr := models.MapToArray(m)
+	item_chunks := models.Chunk(full_arr, chunk_size)
 	total := 0
 
 	for _, chunk := range item_chunks {

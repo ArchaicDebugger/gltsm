@@ -99,6 +99,43 @@ func main() {
 
 		c.JSON(200, ranges)
 	})
+
+	r.GET("/songs-of-mood", func(c *gin.Context) {
+		lat, lng := parseLatLng(c)
+		location := getLocation(lat, lng)
+		timestr := c.Query("time")
+		var currentTime time.Time
+
+		if timestr == "" {
+			currentTime = getLocalTime(lat, lng, time.Now().In(location))
+		} else {
+			var dateErr error
+			currentTime, dateErr = time.Parse("2006-01-02 15:04", timestr)
+			if dateErr != nil {
+				c.JSON(400, gin.H{
+					"error":   "Bad Request",
+					"message": "Time should be of format yyyy-MM-dd hh:mm",
+				})
+			}
+		}
+
+		sunAngle := sunAltitude(lat, lng, currentTime)
+		minAngle := sunAngle - (sunAngle / 4)
+		maxAngle := sunAngle + (sunAngle / 4)
+
+		ranges := getYearTimeRangeForAngle(lat, lng, &currentTime, minAngle, maxAngle)
+
+		var reader services.DbReader
+		reader = &services.DbService{}
+
+		result, err := reader.GetTracksThatFitTheMood(ranges)
+		if err != nil {
+			c.JSON(500, err)
+		}
+
+		c.JSON(200, result)
+	})
+
 	r.Run("localhost:4500")
 }
 

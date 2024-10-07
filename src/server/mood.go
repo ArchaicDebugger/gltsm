@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gltsm/models"
 	"math"
 	"os"
 	"sort"
@@ -10,13 +11,6 @@ import (
 
 	timezone "github.com/evanoberholster/timezoneLookup/v2"
 )
-
-type MoodRange struct {
-	Date      time.Time
-	StartTime time.Time
-	EndTime   time.Time
-	HasValue  bool
-}
 
 // Constants
 const (
@@ -64,7 +58,7 @@ func sunAltitude(lat, lng float64, localTime time.Time) float64 {
 	return math.Asin(sinH) * RadToDeg
 }
 
-func timeRangeForAngle(lat, lng float64, dayOfYear int, minAngle float64, maxAngle float64) MoodRange {
+func timeRangeForAngle(lat, lng float64, dayOfYear int, minAngle float64, maxAngle float64) models.MoodRange {
 	fmt.Println("Fetching day:", dayOfYear)
 	defer fmt.Println("Fetched day:", dayOfYear)
 	location := getLocation(lat, lng)
@@ -99,7 +93,7 @@ func timeRangeForAngle(lat, lng float64, dayOfYear int, minAngle float64, maxAng
 		lastTime = currentTime
 	}
 
-	return MoodRange{
+	return models.MoodRange{
 		Date:      startOfDay,
 		StartTime: firstTime,
 		EndTime:   lastTime,
@@ -107,13 +101,13 @@ func timeRangeForAngle(lat, lng float64, dayOfYear int, minAngle float64, maxAng
 	}
 }
 
-func getYearTimeRangeForAngle(lat, lng float64, currentTime *time.Time, minAngle float64, maxAngle float64) []MoodRange {
+func getYearTimeRangeForAngle(lat, lng float64, currentTime *time.Time, minAngle float64, maxAngle float64) []models.MoodRange {
 	startOfYear := time.Date(currentTime.Year(), 1, 1, 0, 0, 0, 0, currentTime.Location())
 	startOfNextYear := startOfYear.AddDate(1, 0, 0)
 	endOfYear := startOfNextYear.AddDate(0, 0, -1)
 
 	var wg = sync.WaitGroup{}
-	ch := make(chan MoodRange, endOfYear.YearDay())
+	ch := make(chan models.MoodRange, endOfYear.YearDay())
 
 	for currentDate := startOfYear; currentDate.Before(endOfYear); currentDate = currentDate.AddDate(0, 0, 1) {
 		wg.Add(1)
@@ -126,7 +120,7 @@ func getYearTimeRangeForAngle(lat, lng float64, currentTime *time.Time, minAngle
 	wg.Wait()
 	close(ch)
 
-	var ranges []MoodRange
+	var ranges []models.MoodRange
 	for day := range ch {
 		if day.HasValue {
 			ranges = append(ranges, day)

@@ -1,7 +1,9 @@
 package services
 
 import (
+	"gltsm/models"
 	dbmodels "gltsm/models/db"
+	"sync"
 	"time"
 )
 
@@ -160,6 +162,72 @@ func (s *DbService) AddListeningHistoryIfNotExists(userId string, trackId string
 			WasAdded: true,
 		}
 	}
+
+	return result, nil
+}
+
+func (s *DbService) GetTracksThatFitTheMood(moodRanges []models.MoodRange) ([]dbmodels.Track, error) {
+	conn := GetGormConnection()
+	db, err := conn.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	var allRanges []models.MoodRange
+	for _, mr := range moodRanges {
+		for i := 0; i < 10; i++ {
+			allRanges = append(allRanges, models.MoodRange{
+				StartTime: mr.StartTime.AddDate(-1, 0, 0),
+				EndTime:   mr.EndTime.AddDate(-1, 0, 0),
+			})
+		}
+	}
+
+	defer db.Close()
+
+	chunkedRanges := models.Chunk(allRanges, 50)
+	var wg sync.WaitGroup
+	ch := make(chan []dbmodels.Track, len(chunkedRanges))
+	mapResult := make(map[string]dbmodels.Track)
+	var result []dbmodels.Track
+
+	for _, chunk := range chunkedRanges {
+		wg.Add(1)
+		go func(currRanges []models.MoodRange) {
+			defer wg.Done()
+			var entries []dbmodels.Track
+			query := conn
+
+			for _, tr := range chunk {
+				query = query.Or("listening_histories.date BETWEEN ? AND ?", tr.StartTime, tr.EndTime)
+			}
+
+			err = conn.
+				Preload("Album").Preload("Album.Artist").
+				Table("tracks").
+				Joins("JOIN listening_histories ON tracks.mbid = listening_histories.track_id").
+				Where(query).
+				Find(&entries).Error
+
+			if err != nil {
+				panic(err)
+			}
+
+			ch <- entries
+		}(chunk)
+	}
+
+	wg.Wait()
+	close(ch)
+
+	for chunk := range ch {
+		//result = append(result, chunk...)
+		for _, item := range chunk {
+			mapResult[item.Mbid] = item
+		}
+	}
+
+	result = models.MapToArray(&mapResult)
 
 	return result, nil
 }

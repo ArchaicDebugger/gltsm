@@ -21,6 +21,8 @@ type Album struct {
 	ArtistID string  `gorm:"not null"`
 	Name     string  `gorm:"not null"`
 	Tracks   []Track `gorm:"foreignKey:AlbumID"`
+
+	Artist Artist `gorm:"foreignKey:ArtistID"`
 }
 
 // Track represents the structure of the tracks table
@@ -34,6 +36,8 @@ type Track struct {
 	URL        string  `gorm:"not null"`
 	Date       string  `gorm:"not null"`           // Store as a string or time.Time
 	Images     []Image `gorm:"foreignKey:TrackID"` // One-to-many relationship with Images
+
+	Album Album `gorm:"foreignKey:AlbumID"`
 }
 
 // Image represents the structure of track images
