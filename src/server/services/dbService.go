@@ -21,13 +21,13 @@ func (s *DbService) AddAlbumIfNotExists(album *dbmodels.Album) (DbOperationRespo
 
 	result := DbOperationResponse{}
 
-	var existing_records int64 = 0
-	err = conn.Model(&dbmodels.Album{}).Where(&dbmodels.Album{Mbid: album.Mbid}).Count(&existing_records).Error
+	var existingRecords int64 = 0
+	err = conn.Model(&dbmodels.Album{}).Where(&dbmodels.Album{Mbid: album.Mbid}).Count(&existingRecords).Error
 	if err != nil {
 		return result, err
 	}
 
-	if existing_records > 0 {
+	if existingRecords > 0 {
 		result.WasAdded = false
 	} else {
 		conn.Create(&album)
@@ -52,13 +52,13 @@ func (s *DbService) AddTrackIfNotExists(track *dbmodels.Track) (DbOperationRespo
 
 	result := DbOperationResponse{}
 
-	var existing_records int64 = 0
-	err = conn.Model(&dbmodels.Track{}).Where(&dbmodels.Track{Mbid: track.Mbid}).Count(&existing_records).Error
+	var existingRecords int64 = 0
+	err = conn.Model(&dbmodels.Track{}).Where(&dbmodels.Track{Mbid: track.Mbid}).Count(&existingRecords).Error
 	if err != nil {
 		return result, err
 	}
 
-	if existing_records > 0 {
+	if existingRecords > 0 {
 		result.WasAdded = false
 	} else {
 		conn.Create(&track)
@@ -83,13 +83,13 @@ func (s *DbService) AddArtistIfNotExists(artist *dbmodels.Artist) (DbOperationRe
 
 	result := DbOperationResponse{}
 
-	var existing_records int64 = 0
-	err = conn.Model(&dbmodels.Artist{}).Where(&dbmodels.Artist{Mbid: artist.Mbid}).Count(&existing_records).Error
+	var existingRecords int64 = 0
+	err = conn.Model(&dbmodels.Artist{}).Where(&dbmodels.Artist{Mbid: artist.Mbid}).Count(&existingRecords).Error
 	if err != nil {
 		return result, err
 	}
 
-	if existing_records > 0 {
+	if existingRecords > 0 {
 		result.WasAdded = false
 	} else {
 		conn.Create(&artist)
@@ -114,13 +114,13 @@ func (s *DbService) AddUserIfNotExists(username string) (DbOperationResponse, er
 
 	result := DbOperationResponse{}
 
-	var existing_records int64 = 0
-	err = conn.Model(&dbmodels.User{}).Where(&dbmodels.User{Username: username}).Count(&existing_records).Error
+	var existingRecords int64 = 0
+	err = conn.Model(&dbmodels.User{}).Where(&dbmodels.User{Username: username}).Count(&existingRecords).Error
 	if err != nil {
 		return result, err
 	}
 
-	if existing_records > 0 {
+	if existingRecords > 0 {
 		result.WasAdded = false
 	} else {
 		new_record := dbmodels.User{Username: username, ID: username}
@@ -146,13 +146,13 @@ func (s *DbService) AddListeningHistoryIfNotExists(userId string, trackId string
 
 	result := DbOperationResponse{}
 
-	var existing_records int64 = 0
-	err = conn.Model(&dbmodels.ListeningHistory{}).Where(&dbmodels.ListeningHistory{UserID: userId, TrackID: trackId, Date: date}).Count(&existing_records).Error
+	var existingRecords int64 = 0
+	err = conn.Model(&dbmodels.ListeningHistory{}).Where(&dbmodels.ListeningHistory{UserID: userId, TrackID: trackId, Date: date}).Count(&existingRecords).Error
 	if err != nil {
 		return result, err
 	}
 
-	if existing_records > 0 {
+	if existingRecords > 0 {
 		result.WasAdded = false
 	} else {
 		new_record := dbmodels.ListeningHistory{UserID: userId, TrackID: trackId, Date: date}

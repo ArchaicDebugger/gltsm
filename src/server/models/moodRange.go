@@ -9,14 +9,14 @@ type MoodRange struct {
 	HasValue  bool
 }
 
-func Chunk[T any](m []T, chunk_size int) [][]T {
+func Chunk[T any](m []T, chunkSize int) [][]T {
 	l := len(m)
 
 	var result [][]T
 
-	for i := 0; i < l; i += chunk_size {
+	for i := 0; i < l; i += chunkSize {
 		var slice []T
-		for j := i; j < i+chunk_size && j < l; j++ {
+		for j := i; j < i+chunkSize && j < l; j++ {
 			slice = append(slice, (m)[j])
 		}
 		result = append(result, slice)

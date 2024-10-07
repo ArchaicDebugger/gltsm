@@ -60,13 +60,13 @@ func main() {
 			}
 		}
 
-		sun_angle := sunAltitude(lat, lng, currentTime)
-		min_angle := sun_angle - (sun_angle / 4)
-		max_angle := sun_angle + (sun_angle / 4)
+		sunAngle := sunAltitude(lat, lng, currentTime)
+		minAngle := sunAngle - (sunAngle / 4)
+		maxAngle := sunAngle + (sunAngle / 4)
 		dayOfYear := time.Now().YearDay()
-		moodRange := timeRangeForAngle(lat, lng, dayOfYear, min_angle, max_angle)
+		moodRange := timeRangeForAngle(lat, lng, dayOfYear, minAngle, maxAngle)
 		c.JSON(200, gin.H{
-			"sunAngle": sun_angle,
+			"sunAngle": sunAngle,
 			"minDate":  moodRange.StartTime,
 			"maxDate":  moodRange.EndTime,
 		})
@@ -125,8 +125,7 @@ func main() {
 
 		ranges := getYearTimeRangeForAngle(lat, lng, &currentTime, minAngle, maxAngle)
 
-		var reader services.DbReader
-		reader = &services.DbService{}
+		var reader services.DbReader = &services.DbService{}
 
 		result, err := reader.GetTracksThatFitTheMood(ranges)
 		if err != nil {

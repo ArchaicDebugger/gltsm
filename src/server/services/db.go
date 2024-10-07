@@ -60,12 +60,12 @@ func EnsureDbCreated() {
 		fmt.Println("Database already there")
 	}
 
-	master_open_db, err := master_db.DB()
+	master_openDb, err := master_db.DB()
 	if err != nil {
 		panic(err)
 	}
 
-	err = master_open_db.Close()
+	err = master_openDb.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -85,12 +85,12 @@ func EnsureDbCreated() {
 		panic(err)
 	}
 
-	open_db, err := db.DB()
+	openDb, err := db.DB()
 	if err != nil {
 		panic(err)
 	}
 
-	err = open_db.Close()
+	err = openDb.Close()
 	if err != nil {
 		panic(err)
 	}
